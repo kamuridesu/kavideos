@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/api/services"
 	"github.com/kamuridesu/gomechan/core/response"
+	"github.com/kamuridesu/kavideos/internal/api/services"
 )
 
 type ExpectedRequest struct {

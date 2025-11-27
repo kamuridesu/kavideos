@@ -8,9 +8,9 @@ import (
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/cobalt"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/fetcher"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/parser"
+	"github.com/kamuridesu/kavideos/internal/cobalt"
+	"github.com/kamuridesu/kavideos/internal/fetcher"
+	"github.com/kamuridesu/kavideos/internal/parser"
 )
 
 func errorHandler(ctx context.Context, b *bot.Bot, msgId int64, err error) {

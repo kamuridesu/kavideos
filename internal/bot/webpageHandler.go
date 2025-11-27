@@ -8,9 +8,9 @@ import (
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/dynamic"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/fetcher"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/static"
+	"github.com/kamuridesu/kavideos/internal/dynamic"
+	"github.com/kamuridesu/kavideos/internal/fetcher"
+	"github.com/kamuridesu/kavideos/internal/static"
 )
 
 func downloadAndSend(ctx context.Context, b *bot.Bot, update *models.Update, url string) {

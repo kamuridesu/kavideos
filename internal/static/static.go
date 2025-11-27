@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/fetcher"
+	"github.com/kamuridesu/kavideos/internal/fetcher"
 )
 
 func HasExtension(extensions []string, url string) bool {

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/static"
+	"github.com/kamuridesu/kavideos/internal/static"
 	"github.com/playwright-community/playwright-go"
 )
 

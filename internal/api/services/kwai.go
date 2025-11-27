@@ -5,8 +5,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/fetcher"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/parser"
+	"github.com/kamuridesu/kavideos/internal/fetcher"
+	"github.com/kamuridesu/kavideos/internal/parser"
 )
 
 func kwaiHandler(ctx context.Context, url string, w io.Writer) error {

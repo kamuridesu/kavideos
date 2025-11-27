@@ -1,4 +1,4 @@
-module github.com/kamuridesu/go-kwai-dowloader-bot
+module github.com/kamuridesu/kavideos
 
 go 1.25.4
 

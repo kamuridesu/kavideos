@@ -6,7 +6,7 @@ import (
 	"io"
 	"regexp"
 
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/cobalt"
+	"github.com/kamuridesu/kavideos/internal/cobalt"
 )
 
 func DefaultDownloader(ctx context.Context, url string, w io.Writer) error {

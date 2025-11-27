@@ -13,7 +13,7 @@ import (
 	"slices"
 	"strconv"
 
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/fetcher"
+	"github.com/kamuridesu/kavideos/internal/fetcher"
 )
 
 type CobaltErrorContext struct {

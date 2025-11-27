@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/bot"
+	"github.com/kamuridesu/kavideos/internal/bot"
 )
 
 func main() {

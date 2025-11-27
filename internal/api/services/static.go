@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/fetcher"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/static"
+	"github.com/kamuridesu/kavideos/internal/fetcher"
+	"github.com/kamuridesu/kavideos/internal/static"
 )
 
 type StructuredResponse struct {

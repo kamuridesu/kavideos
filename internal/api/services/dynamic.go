@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/dynamic"
-	"github.com/kamuridesu/go-kwai-dowloader-bot/internal/fetcher"
+	"github.com/kamuridesu/kavideos/internal/dynamic"
+	"github.com/kamuridesu/kavideos/internal/fetcher"
 )
 
 func DownloadFromDynamic(ctx context.Context, url string, w io.Writer) error {

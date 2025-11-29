@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"log/slog"
+	"slices"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -11,6 +12,8 @@ import (
 )
 
 func HasExtension(extensions []string, url string) bool {
+	url = strings.Split(url, "?")[0]
+	url = strings.Split(url, "#")[0]
 	for _, ext := range extensions {
 		if strings.HasSuffix(url, "."+ext) {
 			return true
@@ -20,7 +23,7 @@ func HasExtension(extensions []string, url string) bool {
 }
 
 // Passing nil to the extensions list will cause it to load static.DEFAULT_VIDEO_EXT_LIST
-func FetchAllUrlsInPage(ctx context.Context, rootUrl string, extensions []string) ([]string, error) {
+func FetchAllUrlsInPage(ctx context.Context, rootUrl string, extensions []string, cookies ...*fetcher.CookieFetcher) ([]string, error) {
 	slog.Info("Fetching page urls")
 
 	if extensions == nil {
@@ -28,7 +31,7 @@ func FetchAllUrlsInPage(ctx context.Context, rootUrl string, extensions []string
 	}
 
 	buffer := new(bytes.Buffer)
-	err := fetcher.Fetch(ctx, rootUrl, buffer, nil)
+	err := fetcher.Fetch(ctx, rootUrl, buffer, nil, cookies...)
 	if err != nil {
 		return nil, err
 	}
@@ -42,13 +45,13 @@ func FetchAllUrlsInPage(ctx context.Context, rootUrl string, extensions []string
 
 	doc.Find("[href], [src]").Each(func(i int, s *goquery.Selection) {
 		if href, exists := s.Attr("href"); exists {
-			if HasExtension(extensions, href) {
+			if HasExtension(extensions, href) && !slices.Contains(urls, href) {
 				urls = append(urls, href)
 			}
 		}
 
 		if src, exists := s.Attr("src"); exists {
-			if HasExtension(extensions, src) {
+			if HasExtension(extensions, src) && !slices.Contains(urls, src) {
 				urls = append(urls, src)
 			}
 		}

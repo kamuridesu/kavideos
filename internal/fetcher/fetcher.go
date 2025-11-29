@@ -13,6 +13,15 @@ import (
 	"strconv"
 )
 
+const (
+	USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0"
+)
+
+type CookieFetcher struct {
+	Cookies       []*http.Cookie
+	RefererHeader string
+}
+
 func GenerateRandomFilename(extension string) string {
 	bytes := make([]byte, 8)
 	if _, err := rand.Read(bytes); err != nil {
@@ -21,12 +30,23 @@ func GenerateRandomFilename(extension string) string {
 	return hex.EncodeToString(bytes) + extension
 }
 
-func Fetch(ctx context.Context, url string, dst io.Writer, progressCallback func(int, int)) error {
+func Fetch(ctx context.Context, url string, dst io.Writer, progressCallback func(int, int), cookies ...*CookieFetcher) error {
 	slog.Info("Fetching data from url: " + url)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return err
+	}
+
+	req.Header.Set("User-Agent", USER_AGENT)
+
+	for _, cookie := range cookies {
+		for _, c := range cookie.Cookies {
+			req.AddCookie(c)
+		}
+		if cookie.RefererHeader != "" {
+			req.Header.Set("Referer", cookie.RefererHeader)
+		}
 	}
 
 	res, err := http.DefaultClient.Do(req)
@@ -37,6 +57,13 @@ func Fetch(ctx context.Context, url string, dst io.Writer, progressCallback func
 
 	if res.StatusCode != 200 {
 		return fmt.Errorf("bad status: %s", res.Status)
+	}
+
+	for _, cookie := range cookies {
+		cookie.Cookies = res.Cookies()
+		if ref := res.Header.Get("Referer"); ref != "" {
+			cookie.RefererHeader = ref
+		}
 	}
 
 	if w, ok := dst.(http.ResponseWriter); ok {

@@ -10,7 +10,7 @@ COPY --from=modules /go/pkg /go/pkg
 COPY . /workdir
 WORKDIR /workdir
 ARG MODULE=bot
-RUN GOOS=linux GOARCH=amd64 go build -o /bin/myapp ./${MODULE}/main.go
+RUN go build -o /bin/myapp ./${MODULE}/main.go
 
 FROM ubuntu:noble-20251013
 EXPOSE 8080

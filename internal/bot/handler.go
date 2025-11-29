@@ -3,14 +3,19 @@ package bot
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
+	"net/url"
 	"regexp"
+	"strings"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/kamuridesu/kavideos/internal/cobalt"
 	"github.com/kamuridesu/kavideos/internal/fetcher"
 	"github.com/kamuridesu/kavideos/internal/parser"
+	"github.com/kamuridesu/kavideos/internal/static"
 )
 
 func errorHandler(ctx context.Context, b *bot.Bot, msgId int64, err error) {
@@ -28,8 +33,9 @@ func kwaiHandler(ctx context.Context, kUrl string, b *bot.Bot, update *models.Up
 		errorHandler(ctx, b, update.Message.Chat.ID, err)
 	}
 
+	cookie := &fetcher.CookieFetcher{RefererHeader: kUrl}
 	html := new(bytes.Buffer)
-	err := fetcher.Fetch(ctx, kUrl, html, nil)
+	err := fetcher.Fetch(ctx, kUrl, html, nil, cookie)
 	if err != nil {
 		errHandler(err)
 		return
@@ -43,7 +49,7 @@ func kwaiHandler(ctx context.Context, kUrl string, b *bot.Bot, update *models.Up
 
 	prog := progressStart(ctx, b, update.Message.Chat.ID)
 	data := new(bytes.Buffer)
-	err = fetcher.Fetch(ctx, url, data, prog.update)
+	err = fetcher.Fetch(ctx, url, data, prog.update, cookie)
 	if err != nil {
 		errHandler(err)
 		return
@@ -78,10 +84,31 @@ func defaultHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	errHandler := func(err error) {
 		errorHandler(ctx, b, update.Message.Chat.ID, err)
 	}
+
+	_, err := url.ParseRequestURI(txt)
+	if !strings.HasPrefix(txt, "http") || err != nil {
+		errHandler(fmt.Errorf("invalid url"))
+		return
+	}
 	pg := progressStart(ctx, b, update.Message.Chat.ID)
 	res := new(bytes.Buffer)
-	err := cobalt.DownloadMediaCobalt(ctx, txt, res, pg.update)
+	err = cobalt.DownloadMediaCobalt(ctx, txt, res, pg.update)
 	if err != nil {
+		pg.end()
+		if errors.Is(err, cobalt.CobaltInvalidLinkError) {
+			slog.Warn("failed to download with cobalt, trying to fetch from webpage")
+			cookie := &fetcher.CookieFetcher{RefererHeader: txt}
+			urls, err := static.FetchAllUrlsInPage(ctx, txt, nil, cookie)
+			if err != nil {
+				errHandler(err)
+				return
+			}
+
+			for _, url := range urls {
+				go downloadAndSend(ctx, b, update, url, cookie)
+			}
+			return
+		}
 		errHandler(err)
 		return
 	}

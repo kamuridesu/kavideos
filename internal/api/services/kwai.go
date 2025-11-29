@@ -11,7 +11,8 @@ import (
 
 func kwaiHandler(ctx context.Context, url string, w io.Writer) error {
 	html := new(bytes.Buffer)
-	err := fetcher.Fetch(ctx, url, html, nil)
+	cookie := &fetcher.CookieFetcher{RefererHeader: url}
+	err := fetcher.Fetch(ctx, url, html, nil, cookie)
 	if err != nil {
 		return err
 	}
@@ -20,7 +21,7 @@ func kwaiHandler(ctx context.Context, url string, w io.Writer) error {
 		return err
 	}
 
-	err = fetcher.Fetch(ctx, vUrl, w, nil)
+	err = fetcher.Fetch(ctx, vUrl, w, nil, cookie)
 	if err != nil {
 		return err
 	}

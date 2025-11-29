@@ -12,9 +12,12 @@ import (
 	"os"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/kamuridesu/kavideos/internal/fetcher"
 )
+
+var CobaltInvalidLinkError = errors.New("invalid link: no service match")
 
 type CobaltErrorContext struct {
 	Service string `json:"service"`
@@ -135,8 +138,13 @@ func GetCobaltStreamUrl(ctx context.Context, mediaUrl string, quality ...int) (*
 	}
 
 	if res.StatusCode != 200 {
+		if strings.Contains(string(body), "error.api.link.invalid") {
+			slog.Error("invalid link received")
+			return nil, CobaltInvalidLinkError
+		}
 		err = fmt.Errorf("invalid status code: %d, body is %s", res.StatusCode, string(body))
 		slog.Error(err.Error())
+
 		return nil, err
 	}
 

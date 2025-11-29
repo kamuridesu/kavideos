@@ -20,11 +20,11 @@ type StructuredResponse struct {
 	Error error
 }
 
-func downloadMedia(ctx context.Context, wg *sync.WaitGroup, ch chan StructuredResponse, url string) {
+func downloadMedia(ctx context.Context, wg *sync.WaitGroup, ch chan StructuredResponse, url string, cookies ...*fetcher.CookieFetcher) {
 	defer wg.Done()
 	var response StructuredResponse
 	data := new(bytes.Buffer)
-	err := fetcher.Fetch(ctx, url, data, nil)
+	err := fetcher.Fetch(ctx, url, data, nil, cookies...)
 	if err != nil {
 		response.Error = err
 	} else {
@@ -37,13 +37,13 @@ func downloadMedia(ctx context.Context, wg *sync.WaitGroup, ch chan StructuredRe
 	}
 }
 
-func downloadAndZipResponse(ctx context.Context, urls []string, w io.Writer) error {
+func downloadAndZipResponse(ctx context.Context, urls []string, w io.Writer, cookies ...*fetcher.CookieFetcher) error {
 	results := make(chan StructuredResponse, len(urls))
 	var wg sync.WaitGroup
 
 	for _, url := range urls {
 		wg.Add(1)
-		go downloadMedia(ctx, &wg, results, url)
+		go downloadMedia(ctx, &wg, results, url, cookies...)
 	}
 
 	wg.Wait()
@@ -61,7 +61,7 @@ func downloadAndZipResponse(ctx context.Context, urls []string, w io.Writer) err
 			continue
 		}
 
-		file, err := zipW.Create(fmt.Sprintf("media-{%d}.mp4", c))
+		file, err := zipW.Create(fmt.Sprintf("media-%d.mp4", c))
 		if err != nil {
 			return err
 		}
@@ -95,7 +95,8 @@ func DownloadFromStatic(ctx context.Context, url string, w io.Writer) error {
 	if url == "" {
 		return fmt.Errorf("invalid url: empty")
 	}
-	urls, err := static.FetchAllUrlsInPage(ctx, url, nil)
+	cookie := &fetcher.CookieFetcher{RefererHeader: url}
+	urls, err := static.FetchAllUrlsInPage(ctx, url, nil, cookie)
 	if err != nil {
 		return err
 	}
@@ -103,10 +104,10 @@ func DownloadFromStatic(ctx context.Context, url string, w io.Writer) error {
 		return fmt.Errorf("no video url found")
 	}
 	if len(urls) > 1 {
-		return downloadAndZipResponse(ctx, urls, w)
+		return downloadAndZipResponse(ctx, urls, w, cookie)
 	}
 
-	err = fetcher.Fetch(ctx, urls[0], w, nil)
+	err = fetcher.Fetch(ctx, urls[0], w, nil, cookie)
 	if err != nil {
 		return err
 	}

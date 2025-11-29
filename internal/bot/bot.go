@@ -26,7 +26,6 @@ func Start(ctx context.Context) error {
 
 	b.RegisterHandler(bot.HandlerTypeMessageText, "/start", bot.MatchTypeExact, startAndHelpHandler)
 	b.RegisterHandler(bot.HandlerTypeMessageText, "/help", bot.MatchTypeExact, startAndHelpHandler)
-	b.RegisterHandler(bot.HandlerTypeMessageText, "download", bot.MatchTypeCommand, webpageHandler)
 	b.RegisterHandler(bot.HandlerTypeMessageText, "browser", bot.MatchTypeCommand, browserHandler)
 
 	slog.Info("Bot started")
